@@ -43,6 +43,7 @@ spec:
   selector:    
     app: mysql-app
     tier: mysql
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
