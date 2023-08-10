@@ -1,0 +1,69 @@
+# persistent-volume.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-devops
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  volumeMode: Filesystem
+  hostPath:
+    path: /mnt/dba
+
+---
+
+# persistent-volume-claim.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-devops
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 3Gi
+
+---
+
+# pod.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-devops
+spec:
+  containers:
+    - name: container-devops
+      image: nginx:latest
+      volumeMounts:
+        - name: app-storage
+          mountPath: /var/www/html
+  volumes:
+    - name: app-storage
+      persistentVolumeClaim:
+        claimName: pvc-devops
+
+---
+
+# service.yml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-devops
+spec:
+  type: NodePort
+  selector:
+    app: pod-devops
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30008
